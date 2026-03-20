@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "up_flow.h": "c",
+        "ostream": "cpp"
+    }
+}
