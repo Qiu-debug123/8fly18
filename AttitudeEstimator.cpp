@@ -51,7 +51,11 @@ unsigned long nowTime = 0;
 int AE_dt_us = 0; // 微分时间间隔，单位毫秒
 float AE_dt = 0.0;// 微分时间间隔,单位s
 
-
+//单独读取角速度函数的相关变量
+unsigned long RatelastTime = 0;
+unsigned long RateNowTime = 0;
+int Rate_dt_us = 0; // 角速度微分时间间隔，单位毫秒
+float Rate_dt = 0.0;// 角速度微分时间间隔,单位
 
 
 // 定义三个独立的卡尔曼滤波器，分别处理X、Y、Z轴加速度
@@ -243,7 +247,7 @@ void SetupMPU6050() {
             // ay_offset /= 2000; // 计算y轴加速度的偏移量
         }
         if(0){ //使用手动设置的偏移量
-            gx_offset = -0.096070;
+            gx_offset = -0.097552;
             gy_offset = 0.035832;
             gz_offset = -0.002609;
         }
@@ -265,8 +269,44 @@ void SetupMPU6050() {
         Serial.print("222");
 }
 
+void GetDataMPU6050Rate(float &rollRate, float &pitchRate, float &yawRate) {
+    RateNowTime = micros();// 获取当前时间
+    Rate_dt_us = RateNowTime - RatelastTime; // 计算微分时间间隔，单位为毫秒
+    Rate_dt = Rate_dt_us / 1000000.0; // 计算微分时间间隔，单位为秒
+    RatelastTime = RateNowTime; // 更新上次时间
+
+    // 读取 MPU-6050 的数据寄存器
+    Wire.beginTransmission(MPU_Addr);
+    // 从寄存器 0x3B 开始
+    Wire.write(0x3B);
+    Wire.endTransmission(false);
+    // 访问 14 个寄存器
+    Wire.requestFrom(MPU_Addr, 14, true);
+
+    // 将高位和低位数据组合成两个字节
+    AcX = Wire.read() << 8 | Wire.read();
+    AcY = Wire.read() << 8 | Wire.read();
+    AcZ = Wire.read() << 8 | Wire.read();
+    Tmp = Wire.read() << 8 | Wire.read();
+    GyX = Wire.read() << 8 | Wire.read();
+    GyY = Wire.read() << 8 | Wire.read();
+    GyZ = Wire.read() << 8 | Wire.read();
+
+    realGyX = GyroConvert(GyX); // 转换为实际角速度值，单位rad/s
+    realGyY = GyroConvert(GyY);
+    realGyZ = GyroConvert(GyZ);
+
+    /*step1:陀螺仪零偏校正*/
+    realGyX -= gx_offset; // 减去x轴角速度偏移量
+    realGyY -= gy_offset; // 减去y轴角速度偏移量
+    realGyZ -= gz_offset; // 减去z轴角速度偏移量
+
+    rollRate = realGyX * 180 / PI; // 转换为角速度，单位°/s
+    pitchRate = realGyY * 180 / PI; // 转换为角速度，单位°/s
+    yawRate = realGyZ * 180 / PI; // 转换为角速度，单位°/s
+}
+
 void GetDataMPU6050(float &roll, float &pitch, float &yaw, float &rollRate, float &pitchRate, float &yawRate, float &RawrollRate, float &RawpitchRate, float AE_RollOffset, float AE_PitchOffset) {
-    j++;
     nowTime = micros();// 获取当前时间
     AE_dt_us = nowTime - lastTime; // 计算微分时间间隔，单位为毫秒
     AE_dt = AE_dt_us / 1000000.0; // 计算微分时间间隔，单位为秒
@@ -565,7 +605,7 @@ void GetDataMPU6050(float &roll, float &pitch, float &yaw, float &rollRate, floa
 float last_worldAccX = 0.0f;
 float last_worldAccY = 0.0f;
 
-void getWorldAcc(float& worldAccX, float& worldAccY){//m/s²
+void get_Horizontal_heading_Acc(float& worldAccX, float& worldAccY){//m/s²  Horizontal heading
 
     // 构建目标姿态的四元数（横滚俯仰为0，偏航保持）
     float target_q0 = cos(MahonyOutputRad.z/2);

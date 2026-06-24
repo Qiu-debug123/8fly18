@@ -9,7 +9,7 @@ float xRangeMax = 5;   // X轴最大值
 float yRangeMin = 0;   // Y轴最小值
 float yRangeMax = 5;   // Y轴最大值
 String serialPortName = "COM13"; // 串口号
-int baudRate = 115200;           // 波特率 (通常单片机是115200，如有不同请修改)
+int baudRate = 921600;           // 波特率 (通常单片机是115200，如有不同请修改)
 // ----------------------------
 
 float currentX = 0;

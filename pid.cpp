@@ -3,64 +3,64 @@
 #include "PID.h"
 
 // 角度环PID参数 - 俯仰轴
-#define ANGLE_PITCH_KP 	3.5//8.5    // 俯仰角度比例系数
-#define ANGLE_PITCH_KI 	0.2//0.2      // 俯仰角度积分系数
+#define ANGLE_PITCH_KP 	4//8.5    // 俯仰角度比例系数
+#define ANGLE_PITCH_KI 	0.0//0.2      // 俯仰角度积分系数
 #define ANGLE_PITCH_KD 	0.0     // 俯仰角度微分系数
 
 // 角度环PID参数 - 横滚轴  
-#define ANGLE_ROLL_KP 	4.5    // 横滚角度比例系数
-#define ANGLE_ROLL_KI 	0.2//0.2      // 横滚角度积分系数
+#define ANGLE_ROLL_KP 	4//4.5    // 横滚角度比例系数
+#define ANGLE_ROLL_KI 	0.0//0.2      // 横滚角度积分系数
 #define ANGLE_ROLL_KD 	0.0      // 横滚角度微分系数
 
 // 角度环PID参数 - 偏航轴
-#define ANGLE_YAW_KP 	15     // 偏航角速度比例系数
-#define ANGLE_YAW_KI 	0      // 偏航角速度积分系数
+#define ANGLE_YAW_KP  5    // 偏航角速度比例系数 5
+#define ANGLE_YAW_KI 	0      // 偏航角速度积分系数	
 #define ANGLE_YAW_KD 	0      // 偏航角速度微分系数
 
 // 角速度环PID参数 - 偏航轴
-#define RATE_YAW_KP 	10    // 偏航角速度比例系数
-#define RATE_YAW_KI 	0.1    // 偏航角速度积分系数
-#define RATE_YAW_KD 	1.0//1.25    // 偏航角速度微分系数
+#define RATE_YAW_KP 	28//10    // 偏航角速度比例系数 13,5
+#define RATE_YAW_KI 	0    // 偏航角速度积分系数
+#define RATE_YAW_KD   8.5//1.25    // 偏航角速度微分系数0.45
 
 // 角速度环PID参数 - 俯仰轴
-#define RATE_PITCH_KP 	6     // 俯仰角速度比例系数
-#define RATE_PITCH_KI 	0.00    // 俯仰角速度积分系数
-#define RATE_PITCH_KD 	0.35   // 俯仰角速度微分系数//0.045
+#define RATE_PITCH_KP 	9.3     // 俯仰角速度比例系数6.65
+#define RATE_PITCH_KI 	0    // 俯仰角速度积分系数
+#define RATE_PITCH_KD 	5.32  // 俯仰角速度微分系数//3.8
 
 // 角速度环PID参数 - 横滚轴
-#define RATE_ROLL_KP 	  4      // 横滚角速度比例系数
-#define RATE_ROLL_KI  	0.2//0.2    // 横滚角速度积分系数
-#define RATE_ROLL_KD  	0.25    // 横滚角速度微分系数//0.1
+#define RATE_ROLL_KP 	  8      // 横滚角速度比例系数6.65
+#define RATE_ROLL_KI  	0//0.2    // 横滚角速度积分系数
+#define RATE_ROLL_KD  	4.56    // 横滚角速度微分系数//3.8
 
 // 高度外环PID参数
-#define HEIGHT_KP      1.0//1.0    // 高度比例系数
-#define HEIGHT_KI      0.0    // 高度积分系数
+#define HEIGHT_KP      2.0//1.0    // 高度比例系数
+#define HEIGHT_KI      0.1    // 高度积分系数
 #define HEIGHT_KD      0.0    // 高度微分系数
 
 // 高度速度环PID参数
-#define HEIGHT_RATE_KP   1.0    // 高度速度比例系数
+#define HEIGHT_RATE_KP   100.0    // 高度速度比例系数
 #define HEIGHT_RATE_KI   0.0	// 高度速度积分系数
 #define HEIGHT_RATE_KD   0.0    // 高度速度微分系数
 
 // X轴位置环PID参数
-#define POS_X_KP       1.2//10.0    // X轴位置比例系数
+#define POS_X_KP       1.0//10.0    // X轴位置比例系数
 #define POS_X_KI       0.0    // X轴位置积分系数
 #define POS_X_KD       0.0//0.2    // X轴位置微分系数
 
 // X轴速度环PID参数
-#define SPEED_X_KP    1.0//4.0    // X轴速度比例系数
-#define SPEED_X_KI    0.0    // X轴速度积分系数
-#define SPEED_X_KD    0.05//0.3    // X轴速度微分系数
+#define SPEED_X_KP    160.0//4.0    // X轴速度比例系数
+#define SPEED_X_KI    4.0    // X轴速度积分系数
+#define SPEED_X_KD    0.0//0.3    // X轴速度微分系数
 
 // Y轴位置单环PID参数
-#define POS_Y_KP       1.2//7.0    // X轴位置比例系数
-#define POS_Y_KI       0.00    // X轴位置积分系数
-#define POS_Y_KD       0.0    // X轴位置微分系数
+#define POS_Y_KP       1.0//7.0    // Y轴位置比例系数
+#define POS_Y_KI       0.0    // Y轴位置积分系数
+#define POS_Y_KD       0.0    // Y轴位置微分系数
 
 // Y轴速度环PID参数
-#define SPEED_Y_KP    1.0//1.0    // Y轴速度比例系数
+#define SPEED_Y_KP    160.0//40.0    // Y轴速度比例系数
 #define SPEED_Y_KI    0.0    // Y轴速度积分系数
-#define SPEED_Y_KD    0.05    // Y轴速度微分系数
+#define SPEED_Y_KD    0.0    // Y轴速度微分系数
 
 // PID输出限制参数
 #define ERRORCORR_MAX	500    // PID总输出最大值
