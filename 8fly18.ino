@@ -79,12 +79,12 @@ enum class FlightState {
 enum class PositionSource {
     UWB_IMU,           // UWB融合IMU (默认)
     OPTICAL_FLOW,      // 纯光流数据
-    OPTICAL_FLOW_IMU   // 光流融合IMU数据
+    OPTICAL_FLOW_IMU,   // 光流融合IMU数据
     T265              // T265定位数据
 };
 
 enum class HeightSource {
-    MTF,
+    MTF02,
     T265
 };
 //固定指定当前数据源：默认UWB，修改等号后面的值即可切换
@@ -619,17 +619,17 @@ void loop() {
                             target_Y_Position = MTF_PosY;
                             break;
                         case PositionSource::T265:
-                            target_X_Position = T265_X;
-                            target_Y_Position = T265_Y;
+                            target_X_Position = t265_X;
+                            target_Y_Position = t265_Y;
                             break;
                         default:
-                            target_X_Position = T265_X;
-                            target_Y_Position = T265_Y;
+                            target_X_Position = t265_X;
+                            target_Y_Position = t265_Y;
                             break;
                     }                 
 
                     // 2. 锁存当前瞬时高度为目标高度
-                    target_Height = T265_Z; // 直接使用T265测量的高度作为目标高度
+                    target_Height = t265_Z; // 直接使用T265测量的高度作为目标高度
                     // 3. 锁存当前油门为定高基础油门
                     hold_base_throttle = receiver_input[2];
                     // 4. 清零PID积分项，避免手动飞行的历史积分干扰
@@ -1140,13 +1140,13 @@ void cal_Height_PID()
     float now_Height;
     switch(CURRENT_HEIGHT_SOURCE) {
         case HeightSource::T265:
-            now_Height = T265_Z;
+            now_Height = t265_Z;
             break;
         case HeightSource::MTF02:
             now_Height = MTF_Height;
             break;
         default:
-            now_Height = T265_Z; // 默认回退到纯光流数据
+            now_Height = t265_Z; // 默认回退到纯光流数据
             break;
     }
     pidController.calCurrentHeightPID(now_Height, target_Height);
