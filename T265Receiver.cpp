@@ -32,7 +32,7 @@ void T265Receiver::processByte(uint8_t b) {
           valid = true;
           packets++;
           lastTime = millis();
-          printPose();
+          printPose2();
         } else {
           errors++;
         }
@@ -55,6 +55,16 @@ void T265Receiver::printPose() {
   Serial.print("  Euler: ");
   Serial.print(pose.roll, 1); Serial.print(", ");
   Serial.print(pose.pitch, 1); Serial.print(", ");
+  Serial.println(pose.yaw, 1);
+}
+
+void T265Receiver::printPose2() {
+  // 格式: pos_x, pos_y, pos_z, roll, pitch, yaw (逗号分隔，适合串口绘图器)
+  Serial.print(pose.pos_x, 3); Serial.print(",");
+  Serial.print(pose.pos_y, 3); Serial.print(",");
+  Serial.print(pose.pos_z, 3); Serial.print(",");
+  Serial.print(pose.roll, 1); Serial.print(",");
+  Serial.print(pose.pitch, 1); Serial.print(",");
   Serial.println(pose.yaw, 1);
 }
 

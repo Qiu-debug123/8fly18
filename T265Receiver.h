@@ -13,6 +13,7 @@ public:
 
   void processByte(uint8_t b);
   void printPose();
+  void printPose2();
   void printStats();
   void checkTimeout();
 

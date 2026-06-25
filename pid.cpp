@@ -33,9 +33,9 @@
 #define RATE_ROLL_KD  	4.56    // 横滚角速度微分系数//3.8
 
 // 高度外环PID参数
-#define HEIGHT_KP      100.0//1.0    // 高度比例系数
+#define HEIGHT_KP      900.0//1.0    // 高度比例系数
 #define HEIGHT_KI      0.0    // 高度积分系数
-#define HEIGHT_KD      0.0    // 高度微分系数
+#define HEIGHT_KD      90.0    // 高度微分系数
 
 // 高度速度环PID参数
 #define HEIGHT_RATE_KP   0.0    // 高度速度比例系数 100

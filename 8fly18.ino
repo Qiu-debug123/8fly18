@@ -289,11 +289,11 @@ void loop() {
         rollOut = pidController.getRollCorrect(PIDController::RATE);
         pitchOut = pidController.getPitchCorrect(PIDController::RATE);
         yawOut = pidController.getYawCorrect(PIDController::RATE);
-        Serial.print(rollOut);Serial.print(",");Serial.print(pitchOut);Serial.print(",");Serial.println(yawOut);
+        // Serial.print(rollOut);Serial.print(",");Serial.print(pitchOut);Serial.print(",");Serial.println(yawOut);
 
         rollOut = constrain(rollOut, -300.0f, 300.0f);
         pitchOut = constrain(pitchOut, -300.0f, 300.0f);
-        yawOut = constrain(yawOut, -370.0f, 370.0f);
+        yawOut = constrain(yawOut, -250.0f, 250.0f);
 
         switch (state) {
             case FlightState::FLY:
@@ -898,7 +898,7 @@ void readT265(){
     if (t265.valid) {
         t265_X = t265.pose.pos_x;
         t265_Y = t265.pose.pos_y;
-        t265_Z = t265.pose.pos_z;
+        t265_Z = -t265.pose.pos_z;
         
         t265_qw = t265.pose.quat_w;
         t265_qx = t265.pose.quat_x;
@@ -1150,8 +1150,9 @@ void cal_Height_PID()
             break;
     }
     pidController.calCurrentHeightPID(now_Height, target_Height);
-    target_Height_Speed = pidController.getHeightCorrect();
-    pidController.calCurrentHeightRatePID(MTF_measured_Height_speed, target_Height_Speed);
+    Serial.print("Height:");Serial.print(target_Height);Serial.print(",");Serial.print(now_Height);Serial.print(",");Serial.print(pidController.getHeightCorrect());Serial.print(",");Serial.println(hold_throttle);
+    // target_Height_Speed = pidController.getHeightCorrect();
+    // pidController.calCurrentHeightRatePID(MTF_measured_Height_speed, target_Height_Speed);
 }
 
 void read_remote_control() {
