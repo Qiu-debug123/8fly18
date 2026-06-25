@@ -80,10 +80,11 @@ enum class PositionSource {
     UWB_IMU,           // UWB融合IMU (默认)
     OPTICAL_FLOW,      // 纯光流数据
     OPTICAL_FLOW_IMU   // 光流融合IMU数据
+    T265              // T265定位数据
 };
 
 //固定指定当前数据源：默认UWB，修改等号后面的值即可切换
-const PositionSource CURRENT_POS_SOURCE = PositionSource::UWB_IMU;
+const PositionSource CURRENT_POS_SOURCE = PositionSource::T265;
 
 // ============================================================
 // 2. 全局变量
@@ -610,14 +611,18 @@ void loop() {
                             target_X_Position = MTF_PosX;
                             target_Y_Position = MTF_PosY;
                             break;
+                        case PositionSource::T265:
+                            target_X_Position = T265_X;
+                            target_Y_Position = T265_Y;
+                            break;
                         default:
-                            target_X_Position = MTF_PosX; // 默认回退到纯光流数据
-                            target_Y_Position = MTF_PosY;
+                            target_X_Position = T265_X;
+                            target_Y_Position = T265_Y;
                             break;
                     }                 
 
                     // 2. 锁存当前瞬时高度为目标高度
-                    target_Height = MTF_Height;
+                    target_Height = T265_Z; // 直接使用T265测量的高度作为目标高度
                     // 3. 锁存当前油门为定高基础油门
                     hold_base_throttle = receiver_input[2];
                     // 4. 清零PID积分项，避免手动飞行的历史积分干扰
@@ -637,27 +642,27 @@ void loop() {
 
                 // ========== 定高定点核心控制链路 ==========
                 // 1. 位置环计算：位置偏差 → 目标速度
-                if (flag_25Hz) {
-                    cal_Position_PID();
-                    flag_25Hz = false;
-                }
-                // 2. 速度环计算：速度偏差 → 目标滚转/俯仰角度
-                cal_Speed_PID();
+                // if (flag_25Hz) {
+                //     cal_Position_PID();
+                //     flag_25Hz = false;
+                // }
+                // // 2. 速度环计算：速度偏差 → 目标滚转/俯仰角度
+                // cal_Speed_PID();
                 // 3. 高度环计算：高度偏差 → 目标油门补偿
                 cal_Height_PID();
 
                 // ========== 覆盖目标角度，替换遥控输入 ==========
                 // 速度环输出的输出除以10直接作为目标加速度，实现定点控制
                 // 原因：小角度时加速度和速度的关系近似线性
-                target_X_Accel = -pidController.getSpeedXCorrect();
-                target_Y_Accel = -pidController.getSpeedYCorrect();
+                // target_X_Accel = -pidController.getSpeedXCorrect();
+                // target_Y_Accel = -pidController.getSpeedYCorrect();
 
-                targetRoll = -target_Y_Accel / 10.0f;
-                targetPitch = target_X_Accel / 10.0f;
+                // targetRoll = -target_Y_Accel / 10.0f;
+                // targetPitch = target_X_Accel / 10.0f;
 
-                // 限制目标角度范围，避免失控
-                targetRoll = constrain(targetRoll, -3.0f, 3.0f);
-                targetPitch = constrain(targetPitch, -3.0f, 3.0f);
+                // // 限制目标角度范围，避免失控
+                // targetRoll = constrain(targetRoll, -3.0f, 3.0f);
+                // targetPitch = constrain(targetPitch, -3.0f, 3.0f);
                 
                 // ========== 定高油门处理 ========== 
                 // 基础油门 + 高度环输出，限幅在安全范围内
