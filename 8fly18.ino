@@ -83,8 +83,15 @@ enum class PositionSource {
     T265              // T265定位数据
 };
 
+enum class HeightSource {
+    MTF,
+    T265
+};
 //固定指定当前数据源：默认UWB，修改等号后面的值即可切换
 const PositionSource CURRENT_POS_SOURCE = PositionSource::T265;
+const HeightSource CURRENT_HEIGHT_SOURCE = HeightSource::T265;
+
+
 
 // ============================================================
 // 2. 全局变量
@@ -666,7 +673,7 @@ void loop() {
                 
                 // ========== 定高油门处理 ========== 
                 // 基础油门 + 高度环输出，限幅在安全范围内
-                hold_throttle = hold_base_throttle + (int)pidController.getHeightRateCorrect();
+                hold_throttle = hold_base_throttle + (int)pidController.getHeightCorrect();
                 hold_throttle = constrain(hold_throttle, 1100, 1800);
                 is_hold_throttle_initialized = true; // 定高油门已初始化，可以开始使用
 
@@ -1130,7 +1137,19 @@ void cal_Speed_PID()
 
 void cal_Height_PID()
 {
-    pidController.calCurrentHeightPID(MTF_Height, target_Height);
+    float now_Height;
+    switch(CURRENT_HEIGHT_SOURCE) {
+        case HeightSource::T265:
+            now_Height = T265_Z;
+            break;
+        case HeightSource::MTF02:
+            now_Height = MTF_Height;
+            break;
+        default:
+            now_Height = T265_Z; // 默认回退到纯光流数据
+            break;
+    }
+    pidController.calCurrentHeightPID(now_Height, target_Height);
     target_Height_Speed = pidController.getHeightCorrect();
     pidController.calCurrentHeightRatePID(MTF_measured_Height_speed, target_Height_Speed);
 }
